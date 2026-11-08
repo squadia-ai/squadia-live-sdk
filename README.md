@@ -1,6 +1,6 @@
-# squadia-live-sdk
+# @squadia/live
 
-SDK do Squadia Live (v0.1.0, MIT): a Action `publicar` envia o build do seu app pelo seu próprio fluxo de automação e conclui a versão na plataforma. Sem segredo no repositório: a autenticação é por OIDC do GitHub.
+SDK do Squadia Live (v0.1.0, MIT), publicado no npm como `@squadia/live` (repositório `squadia-ai/squadia-live-sdk`): a Action `publicar` envia o build do seu app pelo seu próprio fluxo de automação e conclui a versão na plataforma. Sem segredo no repositório: a autenticação é por OIDC do GitHub.
 
 ## app.json
 
@@ -56,7 +56,7 @@ Inputs: `app-json` (padrão `app.json`) e `api` (padrão `https://squadia.live`,
 Para publicar sem GitHub Actions. A CLI usa o mesmo ponto de recebimento e as mesmas regras da Action, e a central decide igual pelos dois caminhos. Só o dono do app publica.
 
 ```sh
-npm install -g github:squadia-ai/squadia-live-sdk
+npm install -g @squadia/live
 publicar --app meu-app dist
 ```
 
@@ -67,9 +67,27 @@ Na primeira vez, a CLI mostra um endereço e um código. Abra o endereço, entre
 
 Saída: `0` quando a versão é aceita e vai ao ar; `1` quando o login é negado ou expira, quando você não é dono do app, quando o manifesto é recusado (com a razão da central, igual à da Action) ou quando a central falha; `2` quando o comando é usado de forma incorreta. Nenhum token aparece na saída. `SQUADIA_LIVE_API` troca a central, só para testes (https, ou http em localhost).
 
+## Uso como biblioteca
+
+```sh
+npm install @squadia/live
+```
+
+```js
+import { nome, versao, validarAppJson, validarAppJsonTexto, API_PADRAO } from "@squadia/live";
+
+validarAppJson({ id: "meu-app", acesso: "publico", pasta: "dist" }); // { ok: true, errors: [], value: {...} }
+```
+
+A entrada é ESM, sem dependências e com tipos (`src/index.d.ts`). Ela exporta só o nome e a versão do pacote e a mesma validação local do `app.json` usada pela Action e pela CLI.
+
 ## Desenvolvimento
 
-`npm test` (Node ≥ 20, sem dependências).
+`npm test` (Node ≥ 20, sem dependências). `npm run test:pacote` empacota com `npm pack`, instala o tarball num projeto temporário e importa `@squadia/live` de lá; a CI do PR roda os dois e `npm pack --dry-run`.
+
+## Publicação no npm
+
+O workflow `publicar.yml` publica quando uma versão é marcada: a tag `vX.Y.Z` tem de ser igual ao `version` do `package.json`, senão o run falha antes de publicar. Também pode ser disparado à mão (`workflow_dispatch`) escolhendo uma tag como ref. A publicação usa trusted publishing (OIDC do GitHub, `npm publish --provenance`): não há token de npm no repositório. O escopo `@squadia` no npm e o cadastro deste repositório e do workflow `publicar.yml` como publicador confiável do pacote são configuração do dono do escopo.
 
 ## Licença
 

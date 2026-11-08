@@ -1,0 +1,24 @@
+name: CI
+on:
+  pull_request:
+    branches: [develop]
+  push:
+    branches: [develop]
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [20, 22]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+      - run: npm test
+      # O que iria ao npm, sem publicar nada.
+      - run: npm pack --dry-run
+      # Empacota, instala o tarball num projeto temporário e importa @squadia/live de lá.
+      - run: npm run test:pacote
