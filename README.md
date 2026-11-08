@@ -8,7 +8,7 @@ Fica na raiz do repositório (ou onde apontar o input `app-json`) e declara o qu
 
 ```json
 {
-  "id": "meu-app",
+  "id": "meuapp",
   "acesso": "publico",
   "pasta": "dist"
 }
@@ -57,7 +57,7 @@ Para publicar sem GitHub Actions. A CLI usa o mesmo ponto de recebimento e as me
 
 ```sh
 npm install -g @squadia/live
-publicar --app meu-app dist
+publicar --app meuapp dist
 ```
 
 - `--app <app>`: id do app de que você é dono.
@@ -76,7 +76,7 @@ npm install @squadia/live
 ```js
 import { nome, versao, validarAppJson, validarAppJsonTexto, API_PADRAO } from "@squadia/live";
 
-validarAppJson({ id: "meu-app", acesso: "publico", pasta: "dist" }); // { ok: true, errors: [], value: {...} }
+validarAppJson({ id: "meuapp", acesso: "publico", pasta: "dist" }); // { ok: true, errors: [], value: {...} }
 ```
 
 A entrada é ESM, sem dependências e com tipos (`src/index.d.ts`). Ela exporta o nome e a versão do pacote, a mesma validação local do `app.json` usada pela Action e pela CLI e as operações de identidade do navegador (`quemSou`, `entrar`, `sair`, `naCasca`, abaixo).

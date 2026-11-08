@@ -1,7 +1,10 @@
 // Validação local do app.json: só feedback rápido. O servidor refaz toda a conferência.
 import path from "node:path";
 
-const ID_RE = /^[A-Za-z0-9][A-Za-z0-9._-]*$/;
+// Formato do id do app (ADR-034 §4), cópia do que a central confere (src/app/id.ts do squadia-live): o SDK
+// não importa o registro. É a única declaração dentro do SDK; o servidor continua sendo quem decide.
+export const ID_APP_RE = /^[a-z][a-z0-9]{2,39}$/;
+export const MENSAGEM_ID_APP = "O id usa só letras minúsculas e números (3 a 40), começando por letra.";
 
 /** Problema com a pasta de build (absoluta ou fora do workspace), ou null. */
 export function problemaPasta(pasta) {
@@ -24,8 +27,8 @@ export function validarAppJson(obj) {
       errors.push(`app.json: campo "${campo}" inválido: deve ser um texto não vazio`);
     }
   }
-  if (typeof obj.id === "string" && obj.id.trim() !== "" && !ID_RE.test(obj.id)) {
-    errors.push('app.json: campo "id" inválido: use apenas letras, números, ".", "_" e "-"');
+  if (typeof obj.id === "string" && obj.id.trim() !== "" && !ID_APP_RE.test(obj.id)) {
+    errors.push(`app.json: campo "id" inválido: ${MENSAGEM_ID_APP}`);
   }
   if (typeof obj.pasta === "string" && obj.pasta.trim() !== "") {
     const p = problemaPasta(obj.pasta);

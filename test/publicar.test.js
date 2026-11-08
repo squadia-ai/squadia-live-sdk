@@ -7,7 +7,7 @@ import { publicar, MSG_SEM_PERMISSAO } from "../src/publicar.js";
 import { ErroValidacao, validarLimites } from "../src/arquivos.js";
 import { ErroApi } from "../src/cliente.js";
 
-function workspace(extra = {}, app = { id: "meu-app", acesso: "publico", pasta: "dist" }) {
+function workspace(extra = {}, app = { id: "meuapp", acesso: "publico", pasta: "dist" }) {
   const ws = fs.mkdtempSync(path.join(os.tmpdir(), "sdk-"));
   fs.mkdirSync(path.join(ws, "dist"));
   fs.writeFileSync(path.join(ws, "dist/index.html"), "<h1>oi</h1>");
@@ -39,7 +39,7 @@ function fakeApi({ concluir = [200, { versaoId: "v1", estado: "aceita" }], putSt
   const chamadas = [];
   const f = async (url, init) => {
     chamadas.push({ url: String(url), ...init });
-    if (url === "https://squadia.live/v1/apps/meu-app/versoes") {
+    if (url === "https://squadia.live/v1/apps/meuapp/versoes") {
       return iniciar ? iniciar(chamadas) : resp(201, {
         versaoId: "v1",
         envios: ["app.json", "index.html"].map((p) => ({ path: p, url: `https://s3/${p}?sig=X`, metodo: "PUT", cabecalhos: { "x-a": "1" } })),
@@ -73,7 +73,7 @@ test("publica ponta a ponta seguindo o contrato", async () => {
   assert.equal(puts[0].headers["x-a"], "1");
   assert.equal(puts[0].headers.Authorization, undefined);
   const fim = chamadas.at(-1);
-  assert.equal(fim.url, "https://squadia.live/v1/apps/meu-app/versoes/v1/concluir");
+  assert.equal(fim.url, "https://squadia.live/v1/apps/meuapp/versoes/v1/concluir");
   assert.equal(fim.headers.Authorization, "Bearer TOKEN");
   assert.equal(fim.body, undefined);
   assert.ok(amb.segredos.includes("TOKEN"));
@@ -82,21 +82,21 @@ test("publica ponta a ponta seguindo o contrato", async () => {
 });
 
 test("app.json inválido aborta antes de qualquer chamada", async () => {
-  const ws = workspace({}, { id: "x", pasta: "dist" });
+  const ws = workspace({}, { id: "xyz", pasta: "dist" });
   const { f, chamadas } = fakeApi();
   await assert.rejects(publicar(base(ws, ambiente(), f)), (e) => e instanceof ErroValidacao && /campo "acesso" ausente/.test(e.message));
   assert.equal(chamadas.length, 0);
 });
 
 test("pasta que escapa do workspace aborta", async () => {
-  const ws = workspace({}, { id: "x", acesso: "p", pasta: "../fora" });
+  const ws = workspace({}, { id: "xyz", acesso: "p", pasta: "../fora" });
   const { f, chamadas } = fakeApi();
   await assert.rejects(publicar(base(ws, ambiente(), f)), /pasta/);
   assert.equal(chamadas.length, 0);
 });
 
 test("symlink que escapa do workspace é rejeitado", async () => {
-  const ws = workspace({}, { id: "x", acesso: "p", pasta: "link" });
+  const ws = workspace({}, { id: "xyz", acesso: "p", pasta: "link" });
   const fora = fs.mkdtempSync(path.join(os.tmpdir(), "fora-"));
   fs.symlinkSync(fora, path.join(ws, "link"));
   const { f, chamadas } = fakeApi();
@@ -174,4 +174,13 @@ test("outros erros não têm retry e mostram motivo", async () => {
   const { f, chamadas } = fakeApi({ iniciar: () => resp(403, { erro: "proibido", motivo: "ramo não vinculado" }) });
   await assert.rejects(publicar(base(ws, ambiente(), f)), /proibido: ramo não vinculado/);
   assert.equal(chamadas.length, 1);
+});
+
+test("cliente recusa id de app fora do formato antes de qualquer rede", async () => {
+  const { criarCliente } = await import("../src/cliente.js");
+  let chamadas = 0;
+  const cliente = criarCliente({ fetch: async () => { chamadas++; return new Response("{}"); }, token: "t", api: "https://x.test" });
+  await assert.rejects(() => cliente.iniciar("meu-app", []), /id de app inválido/);
+  await assert.rejects(() => cliente.concluir("MeuApp", "v1"), /id de app inválido/);
+  assert.equal(chamadas, 0);
 });

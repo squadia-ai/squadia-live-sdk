@@ -38,7 +38,7 @@ test("o tarball de @squadia/live instala num projeto temporário e pode ser impo
 
   const importa = spawnSync(
     process.execPath,
-    ["--input-type=module", "-e", 'const m = await import("@squadia/live"); console.log(JSON.stringify({ nome: m.nome, versao: m.versao, ok: m.validarAppJson({ id: "a", acesso: "publico", pasta: "dist" }).ok }));'],
+    ["--input-type=module", "-e", 'const m = await import("@squadia/live"); console.log(JSON.stringify({ nome: m.nome, versao: m.versao, ok: m.validarAppJson({ id: "abc", acesso: "publico", pasta: "dist" }).ok }));'],
     { cwd: projeto, encoding: "utf8" },
   );
   assert.equal(importa.status, 0, importa.stderr);
