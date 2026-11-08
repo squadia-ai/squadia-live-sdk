@@ -70,7 +70,19 @@ test("CI do PR: testes, npm pack e instalação do tarball em projeto temporári
   assert.match(y, /run: npm run test:pacote$/m);
   assert.doesNotMatch(y, /secrets\.|id-token/);
   for (const l of linhasDeRun(y)) assert.doesNotMatch(l, /\$\{\{/, `interpolação em run: ${l}`);
-  assert.equal(pkg.scripts["test:pacote"], 'node --test "test/pacote/*.test.js"');
+  assert.equal(pkg.scripts["test:pacote"], "node --test test/pacote/*.test.js");
+});
+
+test("scripts de teste rodam no Node mais antigo da matriz (o glob é expandido pelo shell)", () => {
+  // O Node 20 não expande glob passado ao `node --test`: entre aspas, ele procura o arquivo
+  // literal "test/*.test.js" e falha. Sem aspas, quem expande é o shell do npm, em qualquer versão.
+  const y = ler(".github/workflows/ci.yml");
+  assert.match(y, /node-version: \[20, 22\]/);
+  assert.equal(pkg.engines.node, ">=20");
+  assert.equal(pkg.scripts.test, "node --test test/*.test.js");
+  for (const [nome, cmd] of Object.entries(pkg.scripts)) {
+    assert.doesNotMatch(cmd, /["'][^"']*\*[^"']*["']/, `glob entre aspas no script ${nome}: ${cmd}`);
+  }
 });
 
 test("README apresenta o pacote pelo nome público", () => {

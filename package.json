@@ -43,7 +43,7 @@
     "node": ">=20"
   },
   "scripts": {
-    "test": "node --test \"test/*.test.js\"",
-    "test:pacote": "node --test \"test/pacote/*.test.js\""
+    "test": "node --test test/*.test.js",
+    "test:pacote": "node --test test/pacote/*.test.js"
   }
 }
