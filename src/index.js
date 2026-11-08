@@ -2,6 +2,7 @@
 // a Action (`src/main.js`) e a CLI (`bin/publicar.js`) têm os próprios pontos de entrada.
 export { validarAppJson, validarAppJsonTexto } from "./appjson.js";
 export { API_PADRAO } from "./cliente.js";
+export { quemSou, entrar, sair, naCasca } from "./navegador/index.js";
 
 /** Nome público do pacote no npm. */
 export const nome = "@squadia/live";
