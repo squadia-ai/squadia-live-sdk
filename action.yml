@@ -1,0 +1,20 @@
+name: Squadia Live — publicar
+description: Envia o build pelas URLs assinadas da plataforma e conclui a versão (autentica por OIDC, sem segredo).
+author: squadia-ai
+inputs:
+  app-json:
+    description: Caminho do app.json, relativo à raiz do workspace.
+    required: false
+    default: app.json
+  api:
+    description: Base da API (apenas para testes).
+    required: false
+    default: https://squadia.live
+outputs:
+  versao-id:
+    description: Identificador da versão criada.
+  estado:
+    description: Estado final da versão (aceita, recusada ou enviando).
+runs:
+  using: node20
+  main: src/main.js
