@@ -41,7 +41,7 @@ test("a entrada do pacote exporta nome, versão e a validação do app.json, sem
   assert.equal(entrada.nome, "@squadia/live");
   assert.equal(entrada.versao, pkg.version);
   assert.equal(entrada.API_PADRAO, "https://squadia.live");
-  assert.equal(entrada.validarAppJson({ id: "a", acesso: "publico", pasta: "dist" }).ok, true);
+  assert.equal(entrada.validarAppJson({ id: "abc", acesso: "publico", pasta: "dist" }).ok, true);
   assert.equal(entrada.validarAppJsonTexto("{").ok, false);
   const tipos = ler("src/index.d.ts");
   for (const nome of Object.keys(entrada)) assert.match(tipos, new RegExp(`export (const|function) ${nome}\\b`), `tipo de ${nome}`);

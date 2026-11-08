@@ -1,4 +1,6 @@
 // Cliente do contrato de rede da plataforma (H03). Rotas, audiência e formatos vivem só aqui.
+import { ID_APP_RE, MENSAGEM_ID_APP } from "./appjson.js";
+
 export const API_PADRAO = "https://squadia.live";
 export const AUDIENCE = "squadia.live";
 export const MAX_TENTATIVAS_503 = 3;
@@ -13,6 +15,11 @@ export class ErroApi extends Error {
 }
 
 const dormir = (ms) => new Promise((r) => setTimeout(r, ms));
+
+/** Falha cedo, sem rede, com id fora do formato. O servidor continua decidindo. */
+function conferirIdApp(app) {
+  if (typeof app !== "string" || !ID_APP_RE.test(app)) throw new TypeError(`id de app inválido: ${MENSAGEM_ID_APP}`);
+}
 
 function descreverErro(status, corpo) {
   const partes = [`HTTP ${status}`];
@@ -60,6 +67,7 @@ export function criarCliente({ api, token, fetch: f = globalThis.fetch, sleep = 
   return {
     /** POST /v1/apps/{app}/versoes → { versaoId, envios } */
     async iniciar(app, arquivos) {
+      conferirIdApp(app);
       const r = await requisitar("POST", `/v1/apps/${encodeURIComponent(app)}/versoes`, {
         arquivos: arquivos.map(({ path, size, sha256 }) => ({ path, size, sha256 })),
       });
@@ -70,6 +78,7 @@ export function criarCliente({ api, token, fetch: f = globalThis.fetch, sleep = 
     },
     /** POST .../concluir → { status, corpo } (200, 409 e 422 são respostas de domínio). */
     async concluir(app, versaoId) {
+      conferirIdApp(app);
       const r = await requisitar(
         "POST",
         `/v1/apps/${encodeURIComponent(app)}/versoes/${encodeURIComponent(versaoId)}/concluir`,

@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import { validarAppJson, validarAppJsonTexto } from "../src/appjson.js";
 
-const ok = { id: "meu-app", acesso: "publico", pasta: "dist" };
+const ok = { id: "meuapp", acesso: "publico", pasta: "dist" };
 
 test("app.json válido passa", () => assert.equal(validarAppJson(ok).ok, true));
 
@@ -50,4 +50,14 @@ test("README referencia a ação na v0.1.0 e package.json declara 0.1.0", () => 
   assert.match(readme, /id-token: write/);
   const pkg = JSON.parse(fs.readFileSync(new URL("../package.json", import.meta.url), "utf8"));
   assert.equal(pkg.version, "0.1.0");
+});
+
+test("formato do id (ADR-034 §4): recusados com a mensagem, aceitos passam", () => {
+  const msg = "O id usa só letras minúsculas e números (3 a 40), começando por letra.";
+  for (const id of ["meu-app", "meu_app", "meu.app", "MeuApp", "1app", "ab", "a".repeat(41), "meuapp-v1"]) {
+    const r = validarAppJson({ ...ok, id });
+    assert.equal(r.ok, false, id);
+    assert.ok(r.errors[0].includes(msg), id);
+  }
+  for (const id of ["meuapp", "app2025", "abc", "a".repeat(40)]) assert.equal(validarAppJson({ ...ok, id }).ok, true, id);
 });

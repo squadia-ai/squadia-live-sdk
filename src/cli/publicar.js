@@ -2,6 +2,7 @@
 // Mesmo ponto de recebimento e mesmas três chamadas da Action (cliente.js); quem decide é sempre a central.
 import fs from "node:fs/promises";
 import path from "node:path";
+import { ID_APP_RE, MENSAGEM_ID_APP } from "../appjson.js";
 import { coletarArquivos, ErroValidacao } from "../arquivos.js";
 import { API_PADRAO, criarCliente, ErroApi } from "../cliente.js";
 import { entrar, ErroLogin } from "./login.js";
@@ -19,9 +20,6 @@ index.html e app.json na raiz. Na primeira vez, a CLI pede que você entre na ce
 opções:
   --app <app>   id do app de que você é dono
   -h, --ajuda   mostra esta ajuda`;
-
-// Mesmo formato de id que a central aceita na rota.
-const ID_APP = /^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?$/;
 
 class ErroUso extends Error {}
 
@@ -41,8 +39,8 @@ export function lerArgumentos(argv) {
   }
   if (posicionais.length > 1) throw new ErroUso(`informe um só diretório (recebi ${posicionais.length})`);
   if (app === undefined || app === "") throw new ErroUso("informe o app: --app <app>");
-  if (!ID_APP.test(app)) {
-    throw new ErroUso(`id de app inválido: "${app}" (use letras minúsculas, números e "-", até 63 caracteres)`);
+  if (!ID_APP_RE.test(app)) {
+    throw new ErroUso(`id de app inválido: "${app}". ${MENSAGEM_ID_APP}`);
   }
   return { ajuda: false, app, diretorio: posicionais[0] ?? "." };
 }
