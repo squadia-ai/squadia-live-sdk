@@ -1,9 +1,12 @@
 {
   "name": "squadia-live-sdk",
   "version": "0.1.0",
-  "description": "SDK do Squadia Live: Action publicar e validação do app.json",
+  "description": "SDK do Squadia Live: Action publicar, CLI publicar e validação do app.json",
   "license": "MIT",
   "type": "module",
+  "bin": {
+    "publicar": "bin/publicar.js"
+  },
   "engines": {
     "node": ">=20"
   },
