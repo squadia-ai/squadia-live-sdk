@@ -51,6 +51,22 @@ Só valem os eventos `push` e `workflow_dispatch`, no ramo vinculado ao app; `pu
 
 Inputs: `app-json` (padrão `app.json`) e `api` (padrão `https://squadia.live`, para testes). Saídas: `versao-id` e `estado`. A ação sai com erro se a versão for recusada (motivos no log) ou se o pedido falhar. Sem `permissions: id-token: write` ela falha antes de enviar qualquer coisa.
 
+## CLI `publicar` (da sua máquina)
+
+Para publicar sem GitHub Actions. A CLI usa o mesmo ponto de recebimento e as mesmas regras da Action, e a central decide igual pelos dois caminhos. Só o dono do app publica.
+
+```sh
+npm install -g github:squadia-ai/squadia-live-sdk
+publicar --app meu-app dist
+```
+
+- `--app <app>`: id do app de que você é dono.
+- `[diretório]`: a pasta do build (padrão: a atual), com `index.html` e `app.json` na raiz. Valem os mesmos limites da Action.
+
+Na primeira vez, a CLI mostra um endereço e um código. Abra o endereço, entre na central e confirme o código. Não é preciso configurar credencial nenhuma. A sessão fica em `~/.config/squadia-live/sessao.json` (ou `$XDG_CONFIG_HOME`/`%APPDATA%`), com permissão `0600`, e vale por algumas horas. Quando ela vence, a CLI pede o login de novo.
+
+Saída: `0` quando a versão é aceita e vai ao ar; `1` quando o login é negado ou expira, quando você não é dono do app, quando o manifesto é recusado (com a razão da central, igual à da Action) ou quando a central falha; `2` quando o comando é usado de forma incorreta. Nenhum token aparece na saída. `SQUADIA_LIVE_API` troca a central, só para testes (https, ou http em localhost).
+
 ## Desenvolvimento
 
 `npm test` (Node ≥ 20, sem dependências).
