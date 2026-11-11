@@ -1,0 +1,38 @@
+name: Publicar no npm
+# Publica @squadia/live quando uma versão é marcada (tag vX.Y.Z igual ao version do package.json).
+# Trusted publishing (OIDC do GitHub): nenhum token de npm no repositório; a proveniência é assinada pelo próprio run.
+on:
+  push:
+    tags: ["v*.*.*"]
+  workflow_dispatch:
+permissions:
+  contents: read
+  id-token: write
+concurrency:
+  group: publicar-npm
+  cancel-in-progress: false
+jobs:
+  publicar:
+    # Só a partir de tag (no workflow_dispatch, escolha a tag como ref).
+    if: github.ref_type == 'tag'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org
+      # Trusted publishing exige npm >= 11.5.1.
+      - run: npm install -g npm@^11.5.1
+      - run: npm test
+      - run: npm run test:pacote
+      - name: Conferir a tag contra a versão do pacote
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          esperada="v$(node -p "require('./package.json').version")"
+          if [ "$TAG" != "$esperada" ]; then
+            echo "::error::a tag $TAG não corresponde à versão $esperada do package.json"
+            exit 1
+          fi
+      - run: npm publish --provenance --access public

@@ -1,0 +1,49 @@
+{
+  "name": "@squadia/live",
+  "version": "0.1.0",
+  "description": "SDK do Squadia Live: Action publicar, CLI publicar e validação do app.json",
+  "license": "MIT",
+  "type": "module",
+  "main": "./src/index.js",
+  "types": "./src/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.d.ts",
+      "default": "./src/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "bin": {
+    "publicar": "bin/publicar.js"
+  },
+  "files": [
+    "bin/",
+    "src/"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/squadia-ai/squadia-live-sdk.git"
+  },
+  "homepage": "https://github.com/squadia-ai/squadia-live-sdk#readme",
+  "bugs": {
+    "url": "https://github.com/squadia-ai/squadia-live-sdk/issues"
+  },
+  "keywords": [
+    "squadia",
+    "squadia-live",
+    "deploy",
+    "cli"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "provenance": true,
+    "registry": "https://registry.npmjs.org/"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.js",
+    "test:pacote": "node --test test/pacote/*.test.js"
+  }
+}
